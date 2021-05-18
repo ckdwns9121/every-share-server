@@ -4,9 +4,29 @@ const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 �
 const {Like} = require('../models'); //매물 모델 가져오기
 
 
+
+/* 매물 좋아요 체크*/
+router.get('/:realty_id',verifyToken , async(req,res)=>{
+    console.log('hello');
+    const {user_id} = req.decodeToken;
+    const {realty_id} =req.params;
+    try{
+        const existLike = await Like.findOne({where:{user_id,realty_id}});
+        if(existLike){
+            return res.status(200).send({message:'success',like:true});
+        }
+        return res.status(200).send({message:'success',like:false});
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
+    }
+})
+
+
 /* 매물 찜하기 */
 router.post('/:realty_id', verifyToken , async(req,res)=>{
 
+    console.log('hello');
     const {realty_id} = req.params;
     const {user_id} = req.decodeToken;
     try{
