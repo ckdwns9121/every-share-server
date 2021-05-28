@@ -41,7 +41,7 @@ router.get ('/',verifyToken ,async(req,res,next)=>{
 /* 유저 회원가입 */
 router.post('/signup', async(req,res)=>{
 
-    const {email,name,password} = req.body;
+    const {email,name,password,phone_number,agree_sms,agree_push,register_type,native_token} = req.body;
     try{
         // 이미 가입한 이메일인지 체크
         const existUser = await User.findOne({where :{email}});
@@ -62,7 +62,12 @@ router.post('/signup', async(req,res)=>{
         const createUser = await User.create({
             email,
             name,
-            password : hash
+            password : hash,
+            phone_number,
+            agree_sms,
+            agree_push,
+            register_type,
+            native_token
         });
 
         //유저를 생성하지 못했을 시
@@ -114,6 +119,11 @@ router.post('/signin', async (req, res, next) => {
                 email: email,
             },
             process.env.JWT_SECRET,
+            // {
+            //     expiresIn:'7d',
+            //     issuer: 'share.com',
+            //     subject: 'userInfo'
+            // }
         ); // JWT_TOKEN 생성.
         if (!token) {
             return res.status(202).send({ message: 'token을 생성하지 못했습니다.' });
@@ -125,6 +135,24 @@ router.post('/signin', async (req, res, next) => {
     }
 });
 
+/* 유저 로그아웃 */
+router.post('/logout',verifyToken , async(req,res)=>{
+    const {user_id,email} = req.decodeToken;
+    try{
+        const existUser = await User.findOne({where:{user_id,email}});
+        if(!existUser){
+            return res.status(202).send({message:"가입하지 않은 이메일입니다."});
+        }
+        const updateUser = await User.update({native_token:null},{where:{user_id,email}});
+        if(!updateUser){
+            return res.status(202).send({message:"falied"});
+        }
+        return res.status(200).send({message:"success"});
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
+    }
+})
 
 /* 유저 프로필 이미지 변경 */
 
@@ -151,6 +179,75 @@ router.put('/profile_image' , verifyToken , upload.single('profile_image') , asy
     }
     catch(e){
         console.log(e);
+    }
+}) 
+
+router.put('/name', verifyToken ,async(req,res)=>{
+    
+    const {name} = req.body;
+    const {user_id, email}  = req.decodeToken;
+    console.log(name);
+    try{
+        const existUser = await User.findOne({where :{user_id, email}});
+        if(!existUser){
+            return res.status(202).send({message:'가입하지 않은 이메일입니다.'});
+        }
+        const updateUser = await User.update({name},{where:{user_id,email}});
+        if(!updateUser){
+            return res.status(202).send({message:'failed'});
+        }
+        return res.status(200).send({message:'success'});
+
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
+    }
+})
+
+router.put('/phone_number', verifyToken ,async(req,res)=>{
+    
+    const {phone_number} = req.body;
+    const {user_id, email}  = req.decodeToken;
+    console.log(phone_number);
+    try{
+        const existUser = await User.findOne({where :{user_id, email}});
+        if(!existUser){
+            return res.status(202).send({message:'가입하지 않은 이메일입니다.'});
+        }
+        const updateUser = await User.update({phone_number},{where:{user_id,email}});
+        if(!updateUser){
+            return res.status(202).send({message:'failed'});
+        }
+        return res.status(200).send({message:'success'});
+
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
+    }
+})
+
+router.put('/password', verifyToken ,async(req,res)=>{
+    
+    const {password} = req.body;
+    const {user_id, email}  = req.decodeToken;
+    try{
+        const existUser = await User.findOne({where :{user_id, email}});
+        if(!existUser){
+            return res.status(202).send({message:'가입하지 않은 이메일입니다.'});
+        }
+        const hash = await bcrypt.hash(password,12); 
+        if(!hash){
+            return res.status(202).send({message:'비밀번호를 설정하지 못하였습니다.'});
+        }
+        const updateUser = await User.update({password : hash},{where:{user_id,email}});
+        if(!updateUser){
+            return res.status(202).send({message:'failed'});
+        }
+        return res.status(200).send({message:'success'});
+
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
     }
 })
 module.exports = router;

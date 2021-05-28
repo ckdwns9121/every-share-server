@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes)=>{
         },
         name: {
             type: DataTypes.STRING(255),
-            allowNull: false,
             comment: "고객이름"
         },
         password: {
@@ -31,22 +30,9 @@ module.exports = (sequelize, DataTypes)=>{
         },
         phone_number: {
             type: DataTypes.STRING(15),
+            unique: true,
             allowNull: false,
             comment: "휴대폰번호"
-        },
-        birth: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            comment: "생년월일"
-        },
-        profile_image: {
-            type: DataTypes.JSON,
-            comment: "프로필 이미지"
-        },
-        agree_mail: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
-            comment: "0: 거부, 1: 동의"
         },
         agree_sms: {
             type: DataTypes.BOOLEAN,
@@ -58,7 +44,6 @@ module.exports = (sequelize, DataTypes)=>{
             defaultValue: true,
             comment: "0: 거부, 1: 동의"
         },
-
         register_type: {
             type: DataTypes.STRING(150),
             comment: "NULL: 일반가입자, naver:네이버, facebook:페이스북, kakao:카카오"

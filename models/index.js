@@ -40,7 +40,7 @@ db.Sequelize = Sequelize;
 /* table create */
 db.User = require('./user')(sequelize,Sequelize); // 유저 DB
 db.Realty = require('./realty')(sequelize,Sequelize); // 매물 DB
-db.RealtyQuestion= require('./realty_question')(sequelize,Sequelize); // 매물 문의자 DB
+db.RealtyContact= require('./realty_contact')(sequelize,Sequelize); // 매물 문의자 DB
 db.Like = require('./like')(sequelize,Sequelize) //매물 좋아요
 
 /* 관계 설정 */
@@ -51,12 +51,12 @@ db.User.hasMany(db.Realty, { foreignKey: 'user_id', sourceKey: 'user_id' });
 db.Realty.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id' });
 
 // 문의자 - 매물 문의 관계
-db.User.hasMany(db.RealtyQuestion, { foreignKey: 'user_id', sourceKey: 'user_id' }); 
-db.RealtyQuestion.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id' });
+db.User.hasMany(db.RealtyContact, { foreignKey: 'user_id', sourceKey: 'user_id' }); 
+db.RealtyContact.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id' });
 
 // 매물 - 매물 문의자 관계
-db.Realty.hasMany(db.RealtyQuestion, { foreignKey: 'realty_id', sourceKey: 'realty_id' }); 
-db.RealtyQuestion.belongsTo(db.Realty, { foreignKey: 'realty_id', targetKey: 'realty_id' });
+db.Realty.hasMany(db.RealtyContact, { foreignKey: 'realty_id', sourceKey: 'realty_id' }); 
+db.RealtyContact.belongsTo(db.Realty, { foreignKey: 'realty_id', targetKey: 'realty_id' });
 
 
 // 좋아요 - 유저 관계

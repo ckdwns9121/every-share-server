@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router(); 
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
-const {Realty , RealtyQuestion ,Like, Sequelize: {Op}} = require('../models'); //매물 모델 가져오기
+const {Realty ,Like, Sequelize: {Op}} = require('../models'); //매물 모델 가져오기
 const path = require('path');
 const multer = require('multer');
 
@@ -70,19 +70,52 @@ router.get ('/:realty_id' ,async(req,res)=>{
 
 /* 매물 등록하기 */
 router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},{name:'contract_images',maxCount:1}]), async(req,res)=>{
+    
+    /*
+        매물 등록하기 API
+        realty_name : 매물 이름
+        realty_type : 매물 종류
+        realty_kind : 거래 종류
+        realty_all_floors : 전체 층수
+        realty_my_floors : 현재 층수
+        deposit : 보증금
+        monthly_rent : 월세
+        maintenance_charge: 관리비
+        realty_comment: 상세설명
+        addr: 주소
+        addr_detail : 상세주소
+        addr_extra : 여분주소
+        post_num : 우편번호
+        lat : 위도
+        lng : 경도
+        realty_subcomment : 추가설명
+        realty_options : 옵션
+        oper_start_time :대여시간
+        oper_end_time : 종료시간
+        realty_status,
+
+
+    */
+    
+    
     const {
+        realty_name,
+        realty_type,
+        realty_kind,
+        realty_all_floors,
+        realty_my_floors,
+        deposit,
+        monthly_rent,
+        maintenance_charge,
+        realty_comment,
         addr,
         addr_detail,
         addr_extra,
         post_num,
         lat,
         lng,
-        realty_name,
-        realty_comment,
-        realty_type,
-        options,
-        monthly_rent,
-        maintenance_charge,
+        realty_subcomment,
+        realty_options,
         oper_start_time,
         oper_end_time,
         realty_status,
@@ -107,24 +140,29 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
 
         const createRealty = await Realty.create({
             user_id:new_user_id,
+            realty_name,
+            realty_type,
+            realty_kind,
+            realty_all_floors,
+            realty_my_floors,
+            deposit,
+            monthly_rent:new_monthly_rent,
+            maintenance_charge:new_maintenance_charge,
+            realty_comment,
             addr,
             addr_detail,
             addr_extra,
             post_num,
             lat : new_lat,
             lng:new_lng,
-            realty_name,
-            realty_comment,
+            realty_subcomment,
+            realty_options,
             realty_images:realtyImages,
-            contract_images:contract_images,
-            realty_type:new_realty_type,
-            monthly_rent:new_monthly_rent,
-            maintenance_charge:new_maintenance_charge,
             oper_start_time:operStartTime,
             oper_end_time:operEndTime,
             realty_status,
-            options,
-
+            contract_images:contract_images,
+            realty_type:new_realty_type,
         });
         if(!createRealty){
             return res.status(202).send({message:'매물 등록에 실패하였습니다.'});

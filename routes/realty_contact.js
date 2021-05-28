@@ -1,26 +1,25 @@
 const express = require('express');
 const router = express.Router(); 
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
-const {Realty,RealtyQuestion} = require('../models'); //매물 모델 가져오기
-
+const {Realty, RealtyContact} = require('../models'); //매물 모델 가져오기
 
 router.get('/',verifyToken , async(req,res)=>{
 
     const {user_id} = req.decodeToken;
+    
     try{
-        const existQuestions = await RealtyQuestion.findAll({
+        const existContacts = await RealtyContact.findAll({
             where:{user_id},
             include:[{model:Realty}]
-            
         });
-        if(!existQuestions){
+        if(!existContacts){
             return res.status(202).send({message:'문의한 매물이 없습니다.'});
         }
-        return res.status(200).send({message:'success' , questions: existQuestions});
+        return res.status(200).send({message:'success' , contacts: existContacts});
     }
     catch(e){
         if(e.table){
-            res.status(202).send({message:'db error'});
+            return res.status(202).send({message:'db error'});
         }
     }
 })
@@ -31,16 +30,16 @@ router.post('/:realty_id', verifyToken , async(req,res)=>{
     const {realty_id} = req.params;
     const {user_id} = req.decodeToken;
     try{
-        const existQuestion = await RealtyQuestion.findOne({
+        const existContacts = await RealtyContact.findOne({
             where :{realty_id , user_id}
         })
-        if(existQuestion){
+        if(existContacts){
             return res.status(202).send({message:'이미 문의한 매물입니다.'});
         }
-        const createQuestion = await RealtyQuestion.create({
+        const createContact = await RealtyContact.create({
             realty_id,user_id
         })
-        if(!createQuestion){
+        if(!createContact){
             return res.status(202).send({message:'failed'});
         }
         return res.status(200).send({message:'success'});

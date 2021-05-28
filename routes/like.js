@@ -1,13 +1,31 @@
 const express = require('express');
 const router = express.Router(); 
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
-const {Like} = require('../models'); //매물 모델 가져오기
+const {Like,Realty} = require('../models'); //매물 모델 가져오기
+
+
+/* 내가 찜한 매물 */
+router.get('/',verifyToken , async(req,res)=>{
+    const {user_id} = req.decodeToken;
+    try{
+        const existLike = await Like.findAll({
+            where:{user_id},
+            include:[{model:Realty}]
+        });
+        if(existLike){
+            return res.status(200).send({message:'success',likes:existLike});
+        }
+        return res.status(202).send({message:'찜한 매물이 없습니다.'});
+    }
+    catch(e){
+        return res.status(202).send({message:'db error'});
+    }
+})
 
 
 
 /* 매물 좋아요 체크*/
 router.get('/:realty_id',verifyToken , async(req,res)=>{
-    console.log('hello');
     const {user_id} = req.decodeToken;
     const {realty_id} =req.params;
     try{
@@ -22,11 +40,9 @@ router.get('/:realty_id',verifyToken , async(req,res)=>{
     }
 })
 
-
 /* 매물 찜하기 */
 router.post('/:realty_id', verifyToken , async(req,res)=>{
 
-    console.log('hello');
     const {realty_id} = req.params;
     const {user_id} = req.decodeToken;
     try{

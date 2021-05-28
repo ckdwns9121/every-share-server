@@ -19,11 +19,11 @@
 const {User} = require('../models');
 
 const initUser = {
-    user_id: 1,
-    email: 'ckdwns9121@gmail.com',
-    name: '테스터',
-    password: '1234',
-    profile_image : null
+    // user_id: 1,
+    // email: 'ckdwns9121@gmail.com',
+    // name: '테스터',
+    // password: '1234',
+    // profile_image : null
     // phone_number: '01012341234',
     // birth: new Date('1993/12/11')
 };

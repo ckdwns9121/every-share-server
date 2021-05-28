@@ -1,12 +1,12 @@
 // 매물 테이블 문의자
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define(
-        'realty_question',
+        'realty_contact',
         {},
         {
             timestamps: true,
             underscored: true,
-            tableName:'realty_question'
+            tableName:'realty_contact'
         },
     );
 };
