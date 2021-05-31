@@ -20,13 +20,29 @@ const upload = multer({
   
 /* 매물 정보 리스트 요청 */
 router.get ('/' ,async(req,res)=>{
+
+    const {lat , lng , range , filter} = req.query;
+    console.log(filter);
+    
     try{
-        const realties= await Realty.findAll(); 
+        // const realties= await Realty.findAll({order:[['createdAt','DESC']]}); 
+
+        const whereArray = [];
+
+        filter && Array.isArray(filter) && whereArray.push({
+            [Op.or] : filter.map(f=>({realty_type : parseInt(f)}))
+        })
+
+        if (!Array.isArray(filter) || filter.length === 0) {
+            // 필터링 항목이 없으면 반환 배열 0
+            return res.status(200).send({ message: 'success', places: [] });
+        }
+        const realties = await Realty.findAll({where:{[Op.and] : whereArray}}); // 주차공간 리스트 조회.
 
         if(!realties) {
             return res.status(202).send({message:'매물이 존재하지 않습니다.'});
         }
-        return res.status(200).send({message:'success',realties});
+        return res.status(200).send({message:'success', realties: realties});
     }
     catch(e){
         console.log(e);
@@ -94,9 +110,7 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
         oper_end_time : 종료시간
         realty_status,
 
-
     */
-    
     
     const {
         realty_name,
@@ -127,7 +141,7 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
     const realtyImages = realty_images ?  realty_images.map(ob => ob.path) : [];
 
     const {user_id} = req.decodeToken;
-    console.log(user_id);
+    
     try{
         const new_user_id = parseInt(user_id);
         const new_lat = parseFloat(lat);
