@@ -50,7 +50,10 @@ router.post('/signup', async(req,res)=>{
         if(existUser){
             return res.status(202).send({message:'이미 가입한 이메일입니다.'});
         }
-
+        const existPhone = await User.findOne({where:{phone_number}});
+        if(existPhone){
+            return res.status(202).send({message:'동일한 휴대폰 번호로 가입이 되어있습니다.'});
+        }
         //회원가입 진행중 비밀번호 해싱
         const hash = await bcrypt.hash(password,12); 
 

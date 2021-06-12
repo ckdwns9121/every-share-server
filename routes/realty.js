@@ -21,7 +21,7 @@ const upload = multer({
 /* 매물 정보 리스트 요청 */
 router.get ('/' ,async(req,res)=>{
 
-    const {lat , lng , range , filter} = req.query;
+    const {lat , lng  , filter} = req.query;
     console.log(filter);
     
     try{
@@ -35,7 +35,7 @@ router.get ('/' ,async(req,res)=>{
 
         if (!Array.isArray(filter) || filter.length === 0) {
             // 필터링 항목이 없으면 반환 배열 0
-            return res.status(200).send({ message: 'success', places: [] });
+            return res.status(200).send({ message: 'success', realties: [] });
         }
         const realties = await Realty.findAll({where:{[Op.and] : whereArray}}); // 주차공간 리스트 조회.
 
