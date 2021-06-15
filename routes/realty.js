@@ -12,7 +12,7 @@ const upload = multer({
         cb(null, 'uploads/');
       },
       filename: function (req, file, cb) {
-        cb(null, new Date().valueOf() + path.extname(file.originalname));
+        cb(null, new Date().valueOf() + file.originalname); // cb 콜백함수를 통해 전송된 파일 이름 설정
       }
     }),
   });
@@ -37,7 +37,7 @@ router.get ('/' ,async(req,res)=>{
             // 필터링 항목이 없으면 반환 배열 0
             return res.status(200).send({ message: 'success', realties: [] });
         }
-        const realties = await Realty.findAll({where:{[Op.and] : whereArray}}); // 주차공간 리스트 조회.
+        const realties = await Realty.findAll({where:{[Op.and] : whereArray}}); //리스트 조회
 
         if(!realties) {
             return res.status(202).send({message:'매물이 존재하지 않습니다.'});
@@ -54,7 +54,7 @@ router.get ('/my',verifyToken ,async(req,res)=>{
 
     const {user_id} =req.decodeToken;
     try{
-        const my_realties = await Realty.findAll({where :{user_id}});
+        const my_realties = await Realty.findAll({where :{user_id},order: [['created_at', 'DESC']]});
 
         if(!my_realties) {
             return res.status(202).send({message:'매물이 존재하지 않습니다.'});
@@ -137,7 +137,7 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
 
     const realty_images =  req.files['realty_images'];
     const contract_images =  req.files['contract_images'][0].path;
-
+    console.log(contract_images);
     const realtyImages = realty_images ?  realty_images.map(ob => ob.path) : [];
 
     const {user_id} = req.decodeToken;
@@ -175,7 +175,7 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
             oper_start_time:operStartTime,
             oper_end_time:operEndTime,
             realty_status,
-            contract_images:contract_images,
+            realty_contract_images:contract_images,
             realty_type:new_realty_type,
         });
         if(!createRealty){

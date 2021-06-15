@@ -45,10 +45,10 @@ router.post('/signup', async(req,res)=>{
     try{
         // 이미 가입한 이메일인지 체크
         const existUser = await User.findOne({where :{email}});
-
+        console.log(existUser);
         //이미 가입한 이메일이라면 회원가입 실패
         if(existUser){
-            return res.status(202).send({message:'이미 가입한 이메일입니다.'});
+            return res.status(202).send({message:'이미 가입한 회원입니다.'});
         }
         const existPhone = await User.findOne({where:{phone_number}});
         if(existPhone){

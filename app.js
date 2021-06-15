@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const path = require('path');
 dotenv.config();
 const app = express();
 const REST_API = require('./routes'); //rest api 라우팅
@@ -11,7 +12,7 @@ const cors = require('cors');
 app.use(bodyParser.urlencoded({extended:false}));  //req.body 인식
 app.use(bodyParser.json()); //req에서 body를 읽어옴
 
-
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 app.use('/api',REST_API);
 app.use(cors()); // CORS 제한을 제거함.
 
