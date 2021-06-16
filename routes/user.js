@@ -9,6 +9,7 @@ const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 �
 const path = require('path');
 const multer = require('multer');
 
+const JWT_SECRET = 'jwtSecret';
 const upload = multer({
     storage: multer.diskStorage({
       destination: function (req, file, cb) {
@@ -82,7 +83,7 @@ router.post('/signup', async(req,res)=>{
             user_id : createUser.dataValues.user_id,
             email:'temporaty'
         },
-            process.env.JWT_SECRET
+        JWT_SECRET
         ); 
         //임시 토큰 생성
         if(!JWT_TOKEN){
@@ -121,7 +122,7 @@ router.post('/signin', async (req, res, next) => {
                 user_id: existUser.dataValues.user_id,
                 email: email,
             },
-            process.env.JWT_SECRET,
+            JWT_SECRET,
             // {
             //     expiresIn:'7d',
             //     issuer: 'share.com',
