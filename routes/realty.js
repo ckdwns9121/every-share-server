@@ -19,8 +19,9 @@ const upload = multer({
 
   
 /* 매물 정보 리스트 요청 */
-router.get ('/' ,async(req,res)=>{
+router.get ('/', verifyToken, async(req,res)=>{
 
+    const {user_id} =req.decodeToken;
     const {lat , lng  , filter} = req.query;
     console.log(filter);
     
@@ -32,17 +33,36 @@ router.get ('/' ,async(req,res)=>{
         filter && Array.isArray(filter) && whereArray.push({
             [Op.or] : filter.map(f=>({realty_type : parseInt(f)}))
         })
-
         if (!Array.isArray(filter) || filter.length === 0) {
             // 필터링 항목이 없으면 반환 배열 0
             return res.status(200).send({ message: 'success', realties: [] });
         }
-        const realties = await Realty.findAll({where:{[Op.and] : whereArray}}); //리스트 조회
+        const realties = await Realty.findAll({
+            where:{[Op.and] : whereArray},
+            include:[{model:Like , attributes:['id','user_id','realty_id']}]
+        }); //리스트 조회
+        const newState = [];
+        if(user_id){
+
+            for(const post of realties){
+                let like = await Like.findOne({
+                    where:{
+                        [Op.and] :[{realty_id :post.realty_id},{user_id: user_id}]
+                    },
+                })
+                const obj={
+                    ...post.dataValues,
+                    isLiked :  like ? true : false
+                }
+                newState.push(obj);
+            }
+        }
+
 
         if(!realties) {
             return res.status(202).send({message:'매물이 존재하지 않습니다.'});
         }
-        return res.status(200).send({message:'success', realties: realties});
+        return res.status(200).send({message:'success', realties: newState});
     }
     catch(e){
         console.log(e);

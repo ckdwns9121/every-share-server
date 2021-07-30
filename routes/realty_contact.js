@@ -3,6 +3,7 @@ const router = express.Router();
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
 const {Realty, RealtyContact} = require('../models'); //매물 모델 가져오기
 
+/* 내가 문의한 내역 */
 router.get('/',verifyToken , async(req,res)=>{
 
     const {user_id} = req.decodeToken;
