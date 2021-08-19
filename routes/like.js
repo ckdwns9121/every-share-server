@@ -75,6 +75,7 @@ router.delete('/:realty_id', verifyToken , async(req,res)=>{
     const {realty_id} = req.params;
     const {user_id} = req.decodeToken;
     try{
+        
         const existLike = await Like.findOne({
             where :{realty_id , user_id}
         })

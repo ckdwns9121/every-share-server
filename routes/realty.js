@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router(); 
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
+const essentialToken = require('../middlewares/essentialToken'); //토큰이 불필요 해도 되는 페이지에서 쓰는 미들웨어
 const {Realty ,Like, Sequelize: {Op}} = require('../models'); //매물 모델 가져오기
 const path = require('path');
 const multer = require('multer');
@@ -19,15 +20,12 @@ const upload = multer({
 
   
 /* 매물 정보 리스트 요청 */
-router.get ('/', verifyToken, async(req,res)=>{
+router.get ('/', essentialToken, async(req,res)=>{
 
-    const {user_id} =req.decodeToken;
     const {lat , lng  , filter} = req.query;
     console.log(filter);
     
     try{
-        // const realties= await Realty.findAll({order:[['createdAt','DESC']]}); 
-
         const whereArray = [];
 
         filter && Array.isArray(filter) && whereArray.push({
@@ -41,9 +39,14 @@ router.get ('/', verifyToken, async(req,res)=>{
             where:{[Op.and] : whereArray},
             include:[{model:Like , attributes:['id','user_id','realty_id']}]
         }); //리스트 조회
-        const newState = [];
-        if(user_id){
 
+        if(!realties) {
+            return res.status(202).send({message:'매물이 존재하지 않습니다.'});
+        }
+        const newState = [];
+
+        if(req.decodeToken){
+            const{user_id} = req.decodeToken;
             for(const post of realties){
                 let like = await Like.findOne({
                     where:{
@@ -56,13 +59,13 @@ router.get ('/', verifyToken, async(req,res)=>{
                 }
                 newState.push(obj);
             }
-        }
+         return res.status(200).send({message:'success', realties: newState});
 
-
-        if(!realties) {
-            return res.status(202).send({message:'매물이 존재하지 않습니다.'});
         }
-        return res.status(200).send({message:'success', realties: newState});
+        else{
+            return res.status(200).send({message:'success', realties:realties});
+        }
+      
     }
     catch(e){
         console.log(e);
@@ -86,8 +89,9 @@ router.get ('/my',verifyToken ,async(req,res)=>{
     }
 })
 
+
 /* 매물 정보 상세보기 */
-router.get ('/:realty_id' ,async(req,res)=>{
+router.get ('/:realty_id', essentialToken ,async(req,res)=>{
 
     const {realty_id} = req.params;
     try{
@@ -95,14 +99,26 @@ router.get ('/:realty_id' ,async(req,res)=>{
         if(!realty) {
             return res.status(202).send({message:'존재하지 않는 매물입니다.'});
         }
-        const likes = await Like.findAll({where :{realty_id}, order: [['created_at', 'DESC']]});
         await realty.increment('hit');
-        return res.status(200).send({message:'success',realty ,likes});
+        if(req.decodeToken){
+            const{user_id} = req.decodeToken;
+            const like = await Like.findOne({where :{realty_id,user_id}, order: [['created_at', 'DESC']]});
+            const isLiked = like ? true: false;
+            return res.status(200).send({message:'success',realty , isLiked});
+        }
+        else{
+            await realty.increment('hit');
+            return res.status(200).send({message:'success',realty});
+        }
+   
     }
     catch(e){
+        console.log('error');
         console.log(e);
     }
 })
+
+
 
 /* 매물 등록하기 */
 router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},{name:'contract_images',maxCount:1}]), async(req,res)=>{
