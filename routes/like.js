@@ -50,7 +50,10 @@ router.post('/:realty_id', verifyToken , async(req,res)=>{
             where :{realty_id , user_id}
         })
         if(existLike){
-            return res.status(202).send({message:'이미 좋아요 한 매물입니다.'});
+            await Like.destroy({
+                where :{realty_id,user_id}
+            })
+            return res.status(200).send({message:'success',isLiked:false});
         }
         const createLike = await Like.create({
             realty_id,user_id
@@ -58,8 +61,7 @@ router.post('/:realty_id', verifyToken , async(req,res)=>{
         if(!createLike){
             return res.status(202).send({message:'failed'});
         }
-        return res.status(200).send({message:'success'});
-
+        return res.status(200).send({message:'success',isLiked:true});
     }
     catch(e){
         console.log(e);

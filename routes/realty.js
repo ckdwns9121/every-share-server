@@ -94,6 +94,7 @@ router.get ('/my',verifyToken ,async(req,res)=>{
 router.get ('/:realty_id', essentialToken ,async(req,res)=>{
 
     const {realty_id} = req.params;
+    console.log('start');
     try{
         const realty= await Realty.findOne({where:{realty_id}}); 
         if(!realty) {
@@ -101,6 +102,7 @@ router.get ('/:realty_id', essentialToken ,async(req,res)=>{
         }
         await realty.increment('hit');
         if(req.decodeToken){
+            console.log('hello');
             const{user_id} = req.decodeToken;
             const like = await Like.findOne({where :{realty_id,user_id}, order: [['created_at', 'DESC']]});
             const isLiked = like ? true: false;
