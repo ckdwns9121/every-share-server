@@ -175,7 +175,6 @@ router.post('/' ,verifyToken , upload.fields([{name:'realty_images',maxCount:3},
 
     const realty_images =  req.files['realty_images'];
     const contract_images =  req.files['contract_images'][0].path;
-    console.log(contract_images);
     const realtyImages = realty_images ?  realty_images.map(ob => ob.path) : [];
 
     const {user_id} = req.decodeToken;

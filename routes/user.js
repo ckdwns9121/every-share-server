@@ -89,7 +89,7 @@ router.post('/signup', async(req,res)=>{
         if(!JWT_TOKEN){
             return res.status(202).send({message:'JWT_TOKEN 생성 실패'});
         }
-        return res.status(202).send({message:'success',JWT_TOKEN});
+        return res.status(200).send({message:'success',JWT_TOKEN});
 
     }
     catch(e){
