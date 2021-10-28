@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router(); 
 const verifyToken = require('../middlewares/verifyToken'); //토큰 유효성 검사하기 위한 미들웨어
 const essentialToken = require('../middlewares/essentialToken'); //토큰이 불필요 해도 되는 페이지에서 쓰는 미들웨어
-const {Realty ,Like, Sequelize: {Op}} = require('../models'); //매물 모델 가져오기
+const {Realty ,Like,RealtyLately, Sequelize: {Op}} = require('../models'); //매물 모델 가져오기
 const path = require('path');
 const multer = require('multer');
 
@@ -17,6 +17,32 @@ const upload = multer({
       }
     }),
   });
+
+//최근 본방 조회
+router.get('/lately',essentialToken , async(req,res) =>{
+    const {ids} = req.query;
+    try{
+        const arr = [];
+
+        ids && Array.isArray(ids) && arr.push({
+            [Op.or] : ids.map(f =>({realty_id : parseInt(f)}))
+        })
+        if (!Array.isArray(ids) || ids.length === 0) {
+            // 필터링 항목이 없으면 반환 배열 0
+            return res.status(200).send({ message: 'success', realties: [] });
+        }
+        const realties = await Realty.findAll({
+            where :{[Op.and] :arr }
+        })
+        if(!realties) {
+            return res.status(202).send({message:'매물이 존재하지 않습니다.'});
+        }
+        return res.status(200).send({message:"success" ,realties : realties });
+    }
+    catch(e){
+
+    }
+})
 
   
 /* 매물 정보 리스트 요청 */
@@ -102,14 +128,14 @@ router.get ('/:realty_id', essentialToken ,async(req,res)=>{
         }
         await realty.increment('hit');
         if(req.decodeToken){
-            console.log('hello');
             const{user_id} = req.decodeToken;
+            const {user_id : enroolment_user_id} = realty;
+            console.log(enroolment_user_id);
             const like = await Like.findOne({where :{realty_id,user_id}, order: [['created_at', 'DESC']]});
             const isLiked = like ? true: false;
             return res.status(200).send({message:'success',realty , isLiked});
         }
         else{
-            await realty.increment('hit');
             return res.status(200).send({message:'success',realty});
         }
    
@@ -119,6 +145,8 @@ router.get ('/:realty_id', essentialToken ,async(req,res)=>{
         console.log(e);
     }
 })
+
+router.get
 
 
 

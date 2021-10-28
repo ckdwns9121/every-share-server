@@ -9,6 +9,10 @@ router.get('/',verifyToken , async(req,res)=>{
     const {user_id} = req.decodeToken;
     
     try{
+        // const existContacts = await RealtyContact.findAll({
+        //     where:{user_id},
+        //     include:[{model:Realty}]
+        // });
         const existContacts = await RealtyContact.findAll({
             where:{user_id},
             include:[{model:Realty}]
@@ -37,8 +41,11 @@ router.post('/:realty_id', verifyToken , async(req,res)=>{
         if(existContacts){
             return res.status(202).send({message:'이미 문의한 매물입니다.'});
         }
+        const enrollment_user = await Realty.findOne({
+            where : {realty_id}
+        })
         const createContact = await RealtyContact.create({
-            realty_id,user_id
+            realty_id, user_id ,enrollment_user_id : enrollment_user.user_id
         })
         if(!createContact){
             return res.status(202).send({message:'failed'});
@@ -54,4 +61,25 @@ router.post('/:realty_id', verifyToken , async(req,res)=>{
     }
 })
 
+/* 매물 문의온 내역 */
+router.get('/notice', verifyToken , async(req,res)=>{
+
+
+    const {user_id} = req.decodeToken;
+    try{
+        const existContacts = await RealtyContact.findAll({
+            where :{enrollment_user_id:user_id},
+            include :[{model:Realty}]
+        });
+        if(!existContacts){
+            return res.status(202).send({message:'문의온 매물이 없습니다.'});
+        }
+        return res.status(200).send({message:'success' , contacts: existContacts});
+    }
+    catch(e){
+        if(e.table){
+            return res.status(202).send({message:'db error'});
+        }
+    }
+})
 module.exports=router;

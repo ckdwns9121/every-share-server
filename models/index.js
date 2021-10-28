@@ -58,6 +58,9 @@ db.RealtyContact.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id
 db.Realty.hasMany(db.RealtyContact, { foreignKey: 'realty_id', sourceKey: 'realty_id' }); 
 db.RealtyContact.belongsTo(db.Realty, { foreignKey: 'realty_id', targetKey: 'realty_id' });
 
+// 매물 - 매물 등록자 관계
+db.Realty.hasMany(db.RealtyContact, { foreignKey: 'enrollment_user_id', sourceKey: 'user_id' }); 
+db.RealtyContact.belongsTo(db.Realty, { foreignKey: 'enrollment_user_id', targetKey: 'user_id' });
 
 // 좋아요 - 유저 관계
 db.User.hasMany(db.Like, { foreignKey: 'user_id', sourceKey: 'user_id' }); 
@@ -66,7 +69,6 @@ db.Like.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id' });
 // 좋아요 - 매물 관계
 db.Realty.hasMany(db.Like, { foreignKey: 'realty_id', sourceKey: 'realty_id' }); 
 db.Like.belongsTo(db.Realty, { foreignKey: 'realty_id', targetKey: 'realty_id' });
-
 
 
 
