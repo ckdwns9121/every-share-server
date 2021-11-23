@@ -258,6 +258,7 @@ router.post(
       }
       return res.status(200).send({ message: 'success', data: createRealty });
     } catch (e) {
+      console.log(e);
       return res.status(400).send({ message: 'db error' });
     }
   }
