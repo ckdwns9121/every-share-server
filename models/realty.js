@@ -68,17 +68,14 @@ module.exports = (sequelize, DataTypes) => {
         comment: '매물 상세주소',
       },
       region_1depth_name: {
-        allowNull: false,
         type: DataTypes.STRING(255),
         comment: '시',
       },
       region_2depth_name: {
-        allowNull: false,
         type: DataTypes.STRING(255),
         comment: '구',
       },
       region_3depth_name: {
-        allowNull: false,
         type: DataTypes.STRING(255),
         comment: '동',
       },
